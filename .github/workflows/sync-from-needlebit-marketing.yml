@@ -1,0 +1,113 @@
+name: Sync from needlebit-marketing
+
+on:
+  repository_dispatch:
+    types:
+      - needlebit-marketing-updated
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-from-needlebit-marketing
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out needlebit.dev
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check out needlebit-marketing
+        uses: actions/checkout@v4
+        with:
+          repository: Antiokh/needlebit-marketing
+          token: ${{ secrets.NEEDLEBIT_SYNC_TOKEN }}
+          path: _marketing
+
+      - name: Sync managed website files
+        env:
+          SOURCE_DIR: _marketing/needlebit.dev
+          MANIFEST: .needlebit-marketing-files
+        run: |
+          set -euo pipefail
+          test -f "$SOURCE_DIR/.sync-root"
+
+          new_manifest="$(mktemp)"
+          (
+            cd "$SOURCE_DIR"
+            find . -type f \
+              ! -path './.git/*' \
+              ! -path './.github/*' \
+              ! -name '.sync-root' \
+              -printf '%P\n' | sort
+          ) > "$new_manifest"
+
+          if [ -f "$MANIFEST" ]; then
+            while IFS= read -r path; do
+              [ -n "$path" ] || continue
+              case "$path" in
+                .git/*|.github/*|.needlebit-marketing-files)
+                  echo "Refusing unsafe managed path: $path" >&2
+                  exit 1
+                  ;;
+              esac
+              if ! grep -Fxq "$path" "$new_manifest"; then
+                rm -f -- "$path"
+              fi
+            done < "$MANIFEST"
+          fi
+
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.sync-root' \
+            "$SOURCE_DIR/" ./
+
+          cp "$new_manifest" "$MANIFEST"
+
+      - name: Commit and push synchronized files
+        env:
+          SOURCE_SHA: ${{ github.event.client_payload.sha || 'manual' }}
+          SOURCE_URL: ${{ github.event.client_payload.source_url || '' }}
+          SOURCE_MESSAGE: ${{ github.event.client_payload.message || 'Sync from needlebit-marketing' }}
+        run: |
+          set -euo pipefail
+          git config user.name "NeedleBit marketing sync"
+          git config user.email "actions@github.com"
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No website changes to sync."
+            exit 0
+          fi
+
+          git add -A
+          subject="$(printf '%s\n' "$SOURCE_MESSAGE" | sed -n '1p')"
+          [ -n "$subject" ] || subject="Sync from needlebit-marketing"
+
+          {
+            printf '%s [skip needlebit-sync]\n\n' "$subject"
+            printf '%s\n' "Source repository: Antiokh/needlebit-marketing"
+            printf '%s\n' "Source commit: $SOURCE_SHA"
+            if [ -n "$SOURCE_URL" ]; then
+              printf '%s\n' "Source URL: $SOURCE_URL"
+            fi
+          } > /tmp/needlebit-sync-message.txt
+
+          git commit -F /tmp/needlebit-sync-message.txt
+
+          for attempt in 1 2 3; do
+            if git push; then
+              break
+            fi
+            if [ "$attempt" = "3" ]; then
+              exit 1
+            fi
+            git pull --rebase origin main
+            sleep 5
+          done
