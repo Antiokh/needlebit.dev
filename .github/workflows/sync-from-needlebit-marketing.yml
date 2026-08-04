@@ -3,7 +3,7 @@ name: Sync from needlebit-marketing
 on:
   repository_dispatch:
     types:
-      - needlebit-marketing-updated
+      - needlebit-dev-content-updated
   workflow_dispatch:
 
 permissions:
@@ -22,60 +22,44 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          path: _site
 
       - name: Check out needlebit-marketing
         uses: actions/checkout@v4
         with:
           repository: Antiokh/needlebit-marketing
+          ref: ${{ github.event.client_payload.sha || 'main' }}
           token: ${{ secrets.NEEDLEBIT_SYNC_TOKEN }}
           path: _marketing
 
-      - name: Sync managed website files
-        env:
-          SOURCE_DIR: _marketing/needlebit.dev
-          MANIFEST: .needlebit-marketing-files
+      - name: Synchronize published root
+        working-directory: _site
         run: |
           set -euo pipefail
-          test -f "$SOURCE_DIR/.sync-root"
+          source_dir="../_marketing/needlebit.dev"
+          test -f "$source_dir/.sync-root"
 
-          new_manifest="$(mktemp)"
-          (
-            cd "$SOURCE_DIR"
-            find . -type f \
-              ! -path './.git/*' \
-              ! -path './.github/*' \
-              ! -name '.sync-root' \
-              -printf '%P\n' | sort
-          ) > "$new_manifest"
-
-          if [ -f "$MANIFEST" ]; then
-            while IFS= read -r path; do
-              [ -n "$path" ] || continue
-              case "$path" in
-                .git/*|.github/*|.needlebit-marketing-files)
-                  echo "Refusing unsafe managed path: $path" >&2
-                  exit 1
-                  ;;
-              esac
-              if ! grep -Fxq "$path" "$new_manifest"; then
-                rm -f -- "$path"
-              fi
-            done < "$MANIFEST"
-          fi
-
-          rsync -a \
+          rsync -a --delete \
             --exclude='.git/' \
             --exclude='.github/' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='.env' \
             --exclude='.sync-root' \
-            "$SOURCE_DIR/" ./
-
-          cp "$new_manifest" "$MANIFEST"
+            --exclude='.needlebit-marketing-files' \
+            --exclude='DEPLOY.txt' \
+            "$source_dir/" ./
 
       - name: Commit and push synchronized files
+        working-directory: _site
         env:
           SOURCE_SHA: ${{ github.event.client_payload.sha || 'manual' }}
+          SOURCE_REPO: ${{ github.event.client_payload.source_repo || 'Antiokh/needlebit-marketing' }}
           SOURCE_URL: ${{ github.event.client_payload.source_url || '' }}
-          SOURCE_MESSAGE: ${{ github.event.client_payload.message || 'Sync from needlebit-marketing' }}
+          SOURCE_MESSAGE: ${{ github.event.client_payload.message || 'Manual sync from needlebit-marketing' }}
+          SOURCE_AUTHOR: ${{ github.event.client_payload.author || '' }}
+          SOURCE_AUTHOR_EMAIL: ${{ github.event.client_payload.author_email || '' }}
+          SOURCE_FOLDER: needlebit.dev
         run: |
           set -euo pipefail
           git config user.name "NeedleBit marketing sync"
@@ -92,17 +76,28 @@ jobs:
 
           {
             printf '%s [skip needlebit-sync]\n\n' "$subject"
-            printf '%s\n' "Source repository: Antiokh/needlebit-marketing"
-            printf '%s\n' "Source commit: $SOURCE_SHA"
+            printf 'Original source commit message:\n\n%s\n\n' "$SOURCE_MESSAGE"
+            printf 'Sync metadata:\n\n'
+            printf '%s\n' "- Source repository: $SOURCE_REPO"
+            printf '%s\n' "- Source folder: $SOURCE_FOLDER"
+            printf '%s\n' "- Source commit: $SOURCE_SHA"
             if [ -n "$SOURCE_URL" ]; then
-              printf '%s\n' "Source URL: $SOURCE_URL"
+              printf '%s\n' "- Source URL: $SOURCE_URL"
             fi
+            if [ -n "$SOURCE_AUTHOR" ]; then
+              printf '%s' "- Source author: $SOURCE_AUTHOR"
+              if [ -n "$SOURCE_AUTHOR_EMAIL" ]; then
+                printf ' <%s>' "$SOURCE_AUTHOR_EMAIL"
+              fi
+              printf '\n'
+            fi
+            printf '%s\n' "- Sync workflow: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           } > /tmp/needlebit-sync-message.txt
 
           git commit -F /tmp/needlebit-sync-message.txt
 
           for attempt in 1 2 3; do
-            if git push; then
+            if git push origin HEAD:main; then
               break
             fi
             if [ "$attempt" = "3" ]; then
