@@ -1,3 +1,5 @@
+# Source of truth: Antiokh/needlebit-marketing/needlebit.dev
+
 User-agent: OAI-SearchBot
 Allow: /
 
