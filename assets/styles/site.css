@@ -2338,3 +2338,31 @@ body.reveal-ready [data-reveal].is-visible {
         animation: none;
     }
 }
+
+/* Strategy v1.1 interaction clarity */
+.system-option {
+    min-height: 40px;
+    padding: 7px 8px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-size: 0.76rem;
+}
+.system-option:hover,
+.system-option:focus-visible {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(62, 207, 142, 0.18);
+}
+.system-option.is-active {
+    background: rgba(31, 184, 112, 0.1);
+    border-color: rgba(62, 207, 142, 0.24);
+    color: #9df0c7;
+}
+.system-option::after {
+    bottom: 2px;
+}
+@media (max-width: 640px) {
+    .system-option {
+        min-height: 44px;
+        font-size: 0.8rem;
+    }
+}

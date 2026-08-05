@@ -696,12 +696,15 @@
             renderSystemSummary();
 
             document.querySelectorAll(".system-option").forEach((button) => {
+                button.setAttribute("aria-pressed", button.classList.contains("is-active") ? "true" : "false");
                 button.addEventListener("click", () => {
                     const slot = button.dataset.slot;
                     const value = button.dataset.value;
 
                     document.querySelectorAll(`.system-option[data-slot="${slot}"]`).forEach((option) => {
-                        option.classList.toggle("is-active", option === button);
+                        const isActive = option === button;
+                        option.classList.toggle("is-active", isActive);
+                        option.setAttribute("aria-pressed", isActive ? "true" : "false");
                     });
 
                     document.querySelectorAll(`[data-copy-target="${slot}"]`).forEach((node) => {
