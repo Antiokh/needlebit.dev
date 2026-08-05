@@ -2366,3 +2366,54 @@ body.reveal-ready [data-reveal].is-visible {
         font-size: 0.8rem;
     }
 }
+
+/* Meeting type chooser */
+.booking-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 32px;
+}
+
+.booking-choice-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    background: rgba(7, 17, 28, 0.72);
+}
+
+.booking-choice-card h3 {
+    margin: 6px 0 12px;
+}
+
+.booking-choice-card > p:not(.card-kicker) {
+    margin-bottom: 22px;
+}
+
+.booking-choice-link {
+    justify-content: center;
+    width: 100%;
+    margin-top: auto;
+    text-align: center;
+}
+
+.booking-choice-alt {
+    margin: 22px auto 0;
+    text-align: center;
+}
+
+.booking-choice-alt a {
+    color: var(--green, #3ecf8e);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+    .booking-choice-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
