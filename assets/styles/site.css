@@ -1685,7 +1685,7 @@ body.reveal-ready [data-reveal].is-visible {
 
 .booking-embed {
     position: relative;
-    min-height: 790px;
+    min-height: 0;
     border-radius: 24px;
     overflow: hidden;
     background:
@@ -1695,12 +1695,65 @@ body.reveal-ready [data-reveal].is-visible {
     box-shadow: 0 22px 60px rgba(0, 0, 0, 0.24);
 }
 
-.booking-embed iframe {
-    display: block;
-    width: 100%;
-    min-height: 790px;
-    height: 790px;
-    border: 0;
+.booking-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(420px, 1.2fr);
+    align-items: center;
+    gap: 32px;
+    padding: 34px;
+}
+
+.booking-action-copy {
+    max-width: 620px;
+}
+
+.booking-action-copy h3 {
+    margin-bottom: 14px;
+    font-size: clamp(1.6rem, 3vw, 2.35rem);
+}
+
+.booking-action-copy p:last-child {
+    max-width: 58ch;
+}
+
+.booking-option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.booking-option-link {
+    display: flex;
+    min-height: 112px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    padding: 18px;
+    border: 1px solid var(--solid-border);
+    border-radius: 16px;
+    background: rgba(31, 184, 112, 0.08);
+    color: var(--text);
+    text-decoration: none;
+    transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+.booking-option-link strong {
+    color: #9df0c7;
+    font-size: 1rem;
+}
+
+.booking-option-link span {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.booking-option-link:hover,
+.booking-option-link:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(62, 207, 142, 0.44);
+    background: rgba(31, 184, 112, 0.13);
+    box-shadow: 0 16px 30px rgba(20, 136, 82, 0.14);
 }
 
 .footer {
@@ -2255,14 +2308,16 @@ body.reveal-ready [data-reveal].is-visible {
 
     .booking-embed {
         margin-top: 8px;
-        min-height: 50vh;
-        max-height: 50vh;
     }
 
-    .booking-embed iframe {
-        min-height: 50vh;
-        height: 50vh;
-        max-height: 50vh;
+    .booking-actions {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        padding: 24px;
+    }
+
+    .booking-option-grid {
+        grid-template-columns: 1fr;
     }
 
     .hero-points,
@@ -2338,82 +2393,3 @@ body.reveal-ready [data-reveal].is-visible {
         animation: none;
     }
 }
-
-/* Strategy v1.1 interaction clarity */
-.system-option {
-    min-height: 40px;
-    padding: 7px 8px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    font-size: 0.76rem;
-}
-.system-option:hover,
-.system-option:focus-visible {
-    background: rgba(255, 255, 255, 0.045);
-    border-color: rgba(62, 207, 142, 0.18);
-}
-.system-option.is-active {
-    background: rgba(31, 184, 112, 0.1);
-    border-color: rgba(62, 207, 142, 0.24);
-    color: #9df0c7;
-}
-.system-option::after {
-    bottom: 2px;
-}
-@media (max-width: 640px) {
-    .system-option {
-        min-height: 44px;
-        font-size: 0.8rem;
-    }
-}
-
-/* Meeting type chooser */
-.booking-choice-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    margin-top: 32px;
-}
-
-.booking-choice-card {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 18px;
-    background: rgba(7, 17, 28, 0.72);
-}
-
-.booking-choice-card h3 {
-    margin: 6px 0 12px;
-}
-
-.booking-choice-card > p:not(.card-kicker) {
-    margin-bottom: 22px;
-}
-
-.booking-choice-link {
-    justify-content: center;
-    width: 100%;
-    margin-top: auto;
-    text-align: center;
-}
-
-.booking-choice-alt {
-    margin: 22px auto 0;
-    text-align: center;
-}
-
-.booking-choice-alt a {
-    color: var(--green, #3ecf8e);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-}
-
-@media (max-width: 900px) {
-    .booking-choice-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
