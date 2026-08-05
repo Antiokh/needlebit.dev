@@ -1799,11 +1799,12 @@ body.reveal-ready [data-reveal].is-visible {
 }
 
 .contact-channel-row {
-    display: flex;
+    display: grid;
     grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 0.72fr) minmax(420px, 1.28fr);
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
+    column-gap: clamp(32px, 5vw, 64px);
+    row-gap: 20px;
     padding-top: 24px;
     border-top: 1px solid rgba(90, 126, 186, 0.14);
 }
@@ -1814,24 +1815,30 @@ body.reveal-ready [data-reveal].is-visible {
 }
 
 .contact-channel-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
 .contact-channel-link {
-    min-height: 44px;
-    padding: 0 16px;
-    gap: 9px;
-    font-size: 0.92rem;
+    min-height: 88px;
+    grid-template-rows: 1fr;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .contact-channel-icon {
-    width: 18px;
-    height: 18px;
-    flex: 0 0 18px;
-    background: center / contain no-repeat;
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--card-accent-border);
+    border-radius: 14px;
+    background-color: var(--card-accent-surface);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
 }
 
 #telegram-link .contact-channel-icon {
@@ -2428,8 +2435,7 @@ body.reveal-ready [data-reveal].is-visible {
     }
 
     .contact-channel-row {
-        flex-direction: column;
-        align-items: stretch;
+        grid-template-columns: 1fr;
         gap: 14px;
         padding-top: 20px;
     }
