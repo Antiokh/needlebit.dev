@@ -1,8 +1,10 @@
 (function () {
+            const copyNode = document.getElementById("site-runtime-copy");
+            const runtimeCopy = copyNode ? JSON.parse(copyNode.textContent) : {};
             const number = [51, 56, 49, 54, 50, 57, 55, 57, 53, 51, 49, 53]
                 .map((code) => String.fromCharCode(code))
                 .join("");
-            const raw = "Hello NeedleBit, I'd like to discuss an internal system, MVP, SaaS, or automation project. Please share the next available slot.";
+            const raw = runtimeCopy.whatsappMessage || "Hello NeedleBit, I'd like to discuss a project.";
             const link = document.getElementById("whatsapp-link");
             const cursorGlow = document.querySelector(".cursor-glow");
             const summaryNode = document.querySelector("[data-system-summary]");
@@ -14,7 +16,7 @@
             const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
             const marqueeLanes = Array.from(document.querySelectorAll(".case-lane, .testimonial-lane"));
             let desktopTickerFrame = 0;
-            const summaryParts = {
+            const summaryParts = runtimeCopy.summaryParts || {
                 frontend: {
                     WeWeb: "fast-to-ship web product delivery",
                     FlutterFlow: "mobile-first delivery with a path to native apps"
@@ -28,6 +30,19 @@
                     Activepieces: "leaner automation with lower operational overhead"
                 }
             };
+            const summaryDefaults = runtimeCopy.summaryDefaults || {
+                frontend: "fast product delivery",
+                backend: "reliable backend control",
+                automation: "dependable automation"
+            };
+            const hostingCopy = runtimeCopy.hosting || {
+                controlled: "with a self-hostable foundation if you want infrastructure control",
+                managed: "with a managed backend tradeoff instead of a fully self-hostable core"
+            };
+            const navCopy = runtimeCopy.navigation || {
+                open: "Open navigation",
+                close: "Close navigation"
+            };
 
             function renderSystemSummary() {
                 if (!summaryNode) {
@@ -38,19 +53,19 @@
                 const backend = document.querySelector('[data-current="backend"]')?.textContent?.trim() || "Supabase";
                 const automation = document.querySelector('[data-current="automation"]')?.textContent?.trim() || "n8n";
 
-                const frontendText = summaryParts.frontend[frontend] || "fast product delivery";
-                const backendText = summaryParts.backend[backend] || "reliable backend control";
-                const automationText = summaryParts.automation[automation] || "dependable automation";
+                const frontendText = summaryParts.frontend[frontend] || summaryDefaults.frontend;
+                const backendText = summaryParts.backend[backend] || summaryDefaults.backend;
+                const automationText = summaryParts.automation[automation] || summaryDefaults.automation;
                 const hostingText = backend === "Supabase"
-                    ? "with a self-hostable foundation if you want infrastructure control"
-                    : "with a managed backend tradeoff instead of a fully self-hostable core";
+                    ? hostingCopy.controlled
+                    : hostingCopy.managed;
 
                 summaryNode.textContent =
                     frontendText.charAt(0).toUpperCase() +
                     frontendText.slice(1) +
                     ", " +
                     backendText +
-                    ", and " +
+                    (runtimeCopy.summaryJoiner || ", and ") +
                     automationText +
                     ", " +
                     hostingText +
@@ -67,14 +82,14 @@
                 navToggle.addEventListener("click", () => {
                     const isOpen = navMenu.classList.toggle("is-open");
                     navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-                    navToggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+                    navToggle.setAttribute("aria-label", isOpen ? navCopy.close : navCopy.open);
                 });
 
                 navMenu.querySelectorAll("a").forEach((node) => {
                     node.addEventListener("click", () => {
                         navMenu.classList.remove("is-open");
                         navToggle.setAttribute("aria-expanded", "false");
-                        navToggle.setAttribute("aria-label", "Open navigation");
+                        navToggle.setAttribute("aria-label", navCopy.open);
                     });
                 });
             }
