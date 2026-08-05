@@ -1751,8 +1751,7 @@ body.reveal-ready [data-reveal].is-visible {
     background: var(--card-accent-line);
 }
 
-.booking-option-link::after {
-    content: "↗";
+.booking-option-icon {
     display: inline-flex;
     grid-column: 2;
     grid-row: 1 / 3;
@@ -1764,8 +1763,11 @@ body.reveal-ready [data-reveal].is-visible {
     border-radius: 14px;
     background: var(--card-accent-surface);
     color: var(--card-accent-color);
-    font-size: 1.05rem;
-    line-height: 1;
+}
+
+.booking-option-icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 .booking-option-link strong {
@@ -1776,7 +1778,7 @@ body.reveal-ready [data-reveal].is-visible {
     line-height: 1.2;
 }
 
-.booking-option-link span {
+.booking-option-description {
     grid-column: 1;
     grid-row: 2;
     color: var(--muted);
@@ -1821,7 +1823,31 @@ body.reveal-ready [data-reveal].is-visible {
 .contact-channel-link {
     min-height: 44px;
     padding: 0 16px;
+    gap: 9px;
     font-size: 0.92rem;
+}
+
+.contact-channel-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    background: center / contain no-repeat;
+}
+
+#telegram-link .contact-channel-icon {
+    background-image: url("../icons/telegram.svg");
+}
+
+#max-link .contact-channel-icon {
+    background-image: url("../icons/max.svg");
+}
+
+#linkedin-link .contact-channel-icon {
+    background-image: url("../icons/linkedin.svg");
+}
+
+#whatsapp-link .contact-channel-icon {
+    background-image: url("../icons/whatsapp.svg");
 }
 
 .footer {
